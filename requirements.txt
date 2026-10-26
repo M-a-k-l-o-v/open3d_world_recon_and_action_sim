@@ -1,0 +1,9 @@
+# Python 3.11 (open3d needs it). Setup:
+#   python3.11 -m venv Virtual_space_constructor/live3d_env
+#   Virtual_space_constructor/live3d_env/bin/pip install -r requirements.txt
+# Also needs ffmpeg for the capture scripts:  brew install ffmpeg
+numpy==2.2.6
+opencv-python==4.12.0.88
+open3d==0.19.0
+torch==2.9.0
+timm==0.6.13  # MiDaS' BEiT model breaks on timm 0.9+; 0.6.12 doesn't import on Python 3.11

@@ -1,0 +1,24 @@
+# Python environments (rebuild from requirements.txt)
+live3d_env/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Secrets / local settings
+.env
+
+# Phone captures — personal media, large; scripts recreate the folders
+captures/*
+!captures/.gitkeep
+
+# Model weights (torch.hub downloads them to ~/.cache) and run outputs
+*.pt
+*.pth
+scanned_scene.ply
+
+# macOS / editors
+.DS_Store
+.vscode/
+.idea/
