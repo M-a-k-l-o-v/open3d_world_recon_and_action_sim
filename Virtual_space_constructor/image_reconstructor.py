@@ -1,4 +1,4 @@
-# live_3d_reconstructor.py — point cloud of a room from iPhone frames, using MiDaS depth.
+# image_reconstructor.py — point cloud of a room from iPhone frames, using MiDaS depth.
 #
 # What it computes: MiDaS predicts *relative inverse depth* — bigger means nearer, and it is
 # off by an unknown scale s and shift t:  1/Z = s * prediction + t.  With the checkerboard in
@@ -10,10 +10,16 @@
 import cv2
 import json
 import os
+import sys
+import time
 import torch
 import numpy as np
 import open3d as o3d
 import collections
+
+# iPhone connection and preview window are shared with the capture scripts (capture/camera.py)
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "capture"))
+from camera import iphone_listed, open_iphone, show, save_photo, capture_path, timestamp, PROJECT
 
 # camera intrinsics and checkerboard size, made by capture/calibrate.py
 CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), "..", "capture", "camera_calibration.json")
@@ -131,17 +137,25 @@ def depth_to_3d_points_with_color(depth_map, rgb_image):
     colors  = rgb_image.reshape(-1, 3) / 255.0  # Normalize to 0-1
     return points_3d, colors
 
+def connect_to_iphone():
+    # wait for the iPhone instead of quitting — it can take a few seconds to wake up or reconnect
+    while True:
+        if iphone_listed():
+            camera = open_iphone()
+            if camera is not None:
+                print("Connected to the iPhone")
+                return camera
+        print("Waiting for the iPhone (nearby, locked, same Apple ID)... Ctrl+C to stop")
+        time.sleep(2)
+
 def manual_capture_reconstruction():
-    camera = cv2.VideoCapture(0) # OpenCV lists the iPhone (Continuity Camera) as 0 on this Mac; ffmpeg calls it 1
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, camera_calibration["width"]) # K is only valid at the resolution it was calibrated at
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_calibration["height"])
+    camera = connect_to_iphone()
 
     scene_points = o3d.geometry.PointCloud()
-    visualizer = o3d.visualization.Visualizer()
-    visualizer.create_window("Live 3D Scene", width=800, height=600)
-    visualizer.add_geometry(scene_points)
+    session = f"image-recon_midas_{timestamp()}" # names this run's files (convention in capture/camera.py)
+    ply_path = capture_path("ply", f"{session}.ply") # one file per session, rewritten after every capture
 
-    voxel_size = 0.02
+    voxel_size = 0.002 # 2 mm: fine enough to see 15.5 mm board squares in a desk-scale scene
     capture_count = 0
     visualizer = None
 
@@ -153,22 +167,19 @@ def manual_capture_reconstruction():
 
     while True:
         success, frame = camera.read()
-        if not success:
-            break
+        if not success: # the iPhone dropped out: reconnect, keeping the captures so far
+            print("Lost the iPhone stream — reconnecting")
+            camera.release()
+            camera = connect_to_iphone()
+            continue
 
-        # Show live preview with instructions
-        preview = frame.copy()
-        cv2.putText(preview, f"Captures: {capture_count}", (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        cv2.putText(preview, "SPACE=Capture ESC=Done", (10, 60),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
-        cv2.imshow("Camera Preview", preview)
-
-        key = cv2.waitKey(1)
+        # Show live preview with instructions (same 960x540 window as capture/camera.sh)
+        key, window_closed = show(frame, f"Captures: {capture_count}    SPACE = capture    ESC = done")
 
         # Spacebar pressed - capture!
         if key == 32:  # Spacebar
             print(f"\n[Capture {capture_count + 1}] Processing...")
+            save_photo(frame, f"{session}_capture{capture_count + 1:02d}.jpg") # keep the raw frame, even if this capture gets skipped
                 
             if frame.shape[:2] != (camera_calibration["height"], camera_calibration["width"]):
                 print(f"  Camera gives {frame.shape[1]}x{frame.shape[0]}, but the calibration is for "
@@ -189,7 +200,7 @@ def manual_capture_reconstruction():
             new_points, new_colors = depth_to_3d_points_with_color(depth_map, rgb_image)
 
             # Filter out extreme depth values (common noise) — now real metres
-            valid_mask = (depth_map.flatten() > 0.5) & (depth_map.flatten() < 10)
+            valid_mask = (depth_map.flatten() > 0.1) & (depth_map.flatten() < 10) # 0.1 m, not 0.5: desk scenes sit ~0.3-0.4 m away
             new_points = new_points[valid_mask]
             new_colors = new_colors[valid_mask]
 
@@ -223,6 +234,10 @@ def manual_capture_reconstruction():
 
             scene_points = scene_points.voxel_down_sample(voxel_size)
 
+            # Save straight away, before any rendering: a crash, Ctrl+C or lost phone can't lose this capture
+            o3d.io.write_point_cloud(ply_path, scene_points)
+            print(f"  saved to {os.path.relpath(ply_path, PROJECT)}")
+
             # Create visualizer after first capture
             if visualizer is None:
                 print("Creating 3D visualizer window...")
@@ -237,8 +252,8 @@ def manual_capture_reconstruction():
             capture_count += 1
             print(f"✓ Added to scene. Total points: {len(scene_points.points)}")
 
-        # ESC pressed - finish
-        if key == 27:
+        # ESC pressed (or preview window closed) - finish
+        if key == 27 or window_closed:
             break
 
         if visualizer is not None:
@@ -249,8 +264,7 @@ def manual_capture_reconstruction():
     cv2.destroyAllWindows()
                 
     if len(scene_points.points) > 0:
-        o3d.io.write_point_cloud("scanned_scene.ply", scene_points)
-        print(f"\n✓ Saved to 'scanned_scene.ply'")
+        print(f"\n✓ Scene saved in {os.path.relpath(ply_path, PROJECT)}")
         o3d.visualization.draw_geometries([scene_points], 
                                          window_name="Final 3D Scan",
                                          width=1000, height=800)

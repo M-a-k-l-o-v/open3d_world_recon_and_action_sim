@@ -10,11 +10,11 @@ The result is saved under a name in capture/camera_calibration.json, so each
 camera stream (Continuity 1080p now, Camera-app video later) gets its own entry.
 A calibration is only valid for the resolution it was made at.
 
-Usage (from the project folder):
-    bash capture/record.sh        # ~30 s: move the phone around the board, tilt it, fill the corners of the frame
-    Virtual_space_constructor/live3d_env/bin/python capture/calibrate.py captures/videos/<file>.mp4 iphone14_continuity_1080p 25
+Usage:
+    bash capture/camera.sh        # R, then ~30 s: move the phone around the board, tilt it, fill the corners of the frame; R to stop
+    set CALIBRATION_VIDEO and SQUARE_SIZE_MM below, then run this file (e.g. the run button)
 
-The last number is the side of one printed/displayed square in millimetres (measure it with a ruler).
+SQUARE_SIZE_MM is the side of one printed/displayed square in millimetres (measure it with a ruler).
 """
 
 import datetime
@@ -28,6 +28,9 @@ import numpy as np
 INNER_CORNERS = (9, 6)       # matches capture/checkerboard.png (10x7 squares)
 MAX_FRAMES = 40              # calibrateCamera gets slow past this and gains little
 CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), "camera_calibration.json")
+CALIBRATION_VIDEO = os.path.join(os.path.dirname(__file__), "..", "captures", "videos", "iphone 14 Calibration video.mp4")
+CAMERA_NAME = "iphone14_continuity_1080p"   # the entry this calibration is saved under
+SQUARE_SIZE_MM = 15.5    # side of one board square in mm — measure it with a ruler and put it here
 
 
 def find_board_in_video(video_path):
@@ -76,8 +79,10 @@ def save(name, entry, square_size_m):
 
 
 def main():
-    video_path, name, square_mm = sys.argv[1], sys.argv[2], float(sys.argv[3])
-    square_size_m = square_mm / 1000
+    if SQUARE_SIZE_MM is None:
+        sys.exit("Measure one checkerboard square with a ruler and set SQUARE_SIZE_MM at the top of calibrate.py")
+    video_path, name = CALIBRATION_VIDEO, CAMERA_NAME
+    square_size_m = SQUARE_SIZE_MM / 1000
 
     corners, image_size = find_board_in_video(video_path)
     print(f"Board found in {len(corners)} frames")

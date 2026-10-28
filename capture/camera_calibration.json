@@ -1,0 +1,49 @@
+{
+  "convention": "OpenCV pinhole: x right, y down, z forward; pixels for K, metres for the board",
+  "board": {
+    "inner_corners": [
+      9,
+      6
+    ],
+    "square_size_m": 0.0155,
+    "image": "capture/checkerboard.png"
+  },
+  "cameras": {
+    "iphone14_continuity_1080p": {
+      "width": 1920,
+      "height": 1080,
+      "fx": 2011.6270567025979,
+      "fy": 1990.689519252436,
+      "cx": 968.2379003452471,
+      "cy": 543.9915058642027,
+      "K": [
+        [
+          2011.6270567025979,
+          0.0,
+          968.2379003452471
+        ],
+        [
+          0.0,
+          1990.689519252436,
+          543.9915058642027
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "dist_coeffs": [
+        -0.046315082013303026,
+        0.28642655004882406,
+        -0.00178394464561182,
+        0.016312524396360124,
+        -0.7018781849448499
+      ],
+      "rms_reprojection_error_px": 1.6572747066969584,
+      "frames_used": 25,
+      "source_video": "/Users/yin/Documents/projects/Programming/open3d_world_recon_and_action_sim/capture/../captures/videos/iphone 14 Calibration video.mp4",
+      "calibrated_on": "2026-10-28"
+    }
+  }
+}

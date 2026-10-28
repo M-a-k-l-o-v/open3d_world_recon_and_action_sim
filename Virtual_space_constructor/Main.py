@@ -1,3 +1,6 @@
-from live_3d_reconstructor import * 
+from image_reconstructor import *
 
-manual_capture_reconstruction()
+try:
+    manual_capture_reconstruction()
+except KeyboardInterrupt: # every capture is already saved to captures/ply/ as it's made, so nothing is lost
+    print("\nStopped with Ctrl+C — captures so far are saved in captures/ply/")

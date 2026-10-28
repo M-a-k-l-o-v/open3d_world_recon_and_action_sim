@@ -61,6 +61,7 @@ Probe list right now: pose drift · VGGT frame limit on the 4080 · where to sta
 
 - **Know what kind of depth you have.** MiDaS gives *inverse* depth with unknown scale and shift — the old prototype used it as real depth, which bent the room and made every "2 cm" threshold meaningless. VGGT-style output is only off by one overall scale.
 - **Don't guess the focal length.** Calibrate or read it from the phone.
+- **Continuity Camera rotates and re-crops its stream** to keep the picture upright when the phone turns (seen 28 Oct: 90° at the start, sudden several-degree jumps mid-video). That breaks "one fixed K". For calibration, keep the phone still in landscape and move the board; for scans, prefer Camera-app video.
 - **Rotations:** don't gradient-descend raw matrices or average Euler angles — use the exp/log maps.
 - **A nice render isn't nice geometry.** Splats are tuned for pixels; physics needs surfaces.
 - **Same camera convention everywhere:** OpenCV (x right, y down, z forward), metres.
@@ -74,7 +75,7 @@ Probe list right now: pose drift · VGGT frame limit on the 4080 · where to sta
 
 ## Where things live
 
-- **This folder** — the project: `Artifacts/` (the sketch board — re-read it, it's often ahead of the docs), `Virtual_space_constructor/` (the old prototype), `capture/` (iPhone photo/record scripts — output goes to `captures/`; `calibrate.py` + checkerboard write the camera intrinsics to `capture/camera_calibration.json`), and code as it gets built.
+- **This folder** — the project: `Artifacts/` (the sketch board — re-read it, it's often ahead of the docs), `Virtual_space_constructor/` (the old prototype), `capture/` (`camera.sh`: live iPhone view, SPACE = photo, R = record — output goes to `captures/`; `calibrate.py` + checkerboard write the camera intrinsics to `capture/camera_calibration.json`), and code as it gets built.
 - **Project docs (Cowork/claude.ai):** `CHECKPOINT_TRACK.md` (decided / open / probes), `TRAINED_ARTIFACTS.md` (what VSC trains), `HANDOVER.md` (history and the prototype audit), the ML foundations reminder.
 - **Notion:** the *Research reading list* (what's read) and the Tasklist decision log.
 - **Calendar:** the morning reading block, "Deep work — reconstructor model", Thursday VSC build sessions.

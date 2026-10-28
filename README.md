@@ -28,12 +28,11 @@ The first run downloads the MiDaS weights (~1.5 GB) into `~/.cache/torch/hub`.
 ## Capture and calibration
 
 ```bash
-bash capture/photo.sh         # one photo  -> captures/photos/
-bash capture/record.sh        # video, q to stop -> captures/videos/
+bash capture/camera.sh        # live iPhone view: SPACE = photo, R = start/stop recording, Q = quit
 ```
 
 Calibrate once per camera stream: show `capture/checkerboard.png` full-screen or print it, measure one
-square in mm, record ~30 s moving the phone around it, then:
+square in mm, record ~30 s (R in the camera view) moving the phone around it, then:
 
 ```bash
 Virtual_space_constructor/live3d_env/bin/python capture/calibrate.py captures/videos/<file>.mp4 iphone14_continuity_1080p <square_mm>
@@ -48,4 +47,4 @@ prototype reads.
 cd Virtual_space_constructor && live3d_env/bin/python Main.py
 ```
 
-Keep the checkerboard in view; SPACE captures, ESC saves `scanned_scene.ply`.
+Keep the checkerboard in view; SPACE captures (each raw frame is saved to `captures/photos/`), ESC saves the point cloud to `captures/ply/`.
