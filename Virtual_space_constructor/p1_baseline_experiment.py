@@ -13,6 +13,7 @@
 #   Sanity     held-out corners (not used in the depth fit). Secondary: camera path, desk thickness.
 #
 # Run from this folder:   live3d_env/bin/python p1_baseline_experiment.py ../captures/videos/<video>.mp4
+# Add --sweep to rerun row B over a grid of its design calls (k, v, w) instead.
 # Step 1 (MiDaS, slow) is cached in captures/cache/; later runs skip it.
 
 import csv
@@ -38,6 +39,8 @@ MARGIN_K = 2.5
 MAX_SPEED = 0.5              # m/s
 MAX_TURN = np.radians(30)    # rad/s
 
+SWEEP_K = [1.5, 2, 2.5, 3, 4]                                  # --sweep: margins to try
+SWEEP_MOTION = [(0.25, 15), (0.5, 30), (1.0, 60)]              # --sweep: (m/s, deg/s), slow / default / fast
 BANDS = [(0, .1), (.1, .3), (.3, .6), (.6, .8), (.8, 1.5)]     # distance from the board centre, metres
 NEAR_PAIR, FAR_PAIR = 1, 15                                    # neighbours (0.33 s) vs >= 15 steps (~5 s) apart
 CACHE_DIR = os.path.join(PROJECT, "captures", "cache")
@@ -145,15 +148,16 @@ def row_a_old_icp(clouds, first_pose):
     return poses
 
 
-def row_b_best_icp(clouds, median_depth, depth_noise, step_seconds, first_pose):
+def row_b_best_icp(clouds, median_depth, depth_noise, step_seconds, first_pose,
+                   margin_k=MARGIN_K, max_speed=MAX_SPEED, max_turn=MAX_TURN):
     # step = camera i -> camera i-1. Motion guess = the previous step (constant velocity), identity at first.
     poses, step, log = [first_pose], np.eye(4), []
     for i in range(1, len(clouds)):
         d_fine = max(VOXEL, 3 * depth_noise[i])
         if i == 1:      # no history yet: fastest plausible motion in one step
-            d = MAX_SPEED * step_seconds[i] + median_depth[i] * MAX_TURN * step_seconds[i]
+            d = max_speed * step_seconds[i] + median_depth[i] * max_turn * step_seconds[i]
         else:           # how far points could be from the guess: the previous movement, with a margin
-            d = MARGIN_K * (np.linalg.norm(step[:3, 3]) + median_depth[i] * rotation_angle(step))
+            d = margin_k * (np.linalg.norm(step[:3, 3]) + median_depth[i] * rotation_angle(step))
         d0, d = d, max(d, d_fine)
         stages = 0
         while True:     # coarse-to-fine: each stage starts from the last one's answer
@@ -245,6 +249,27 @@ def path_stats(poses):
     return np.linalg.norm(np.diff(centres, axis=0), axis=1).sum(), np.ptp(centres[:, 0]), np.ptp(centres[:, 1])
 
 
+def sweep_row_b(clouds, median_depth, depth_noise, step_seconds, poses_c, board, name):
+    # Row B over every (k, v, w) in the grid. Reading off the best one uses the board, so the best row is
+    # row B with hindsight it could never have: if even that drifts, the design calls aren't the problem.
+    path = os.path.join(OUT_DIR, f"p1_baseline_{name}_rowB_sweep.csv")
+    with open(path, "w", newline="") as f:
+        out = csv.writer(f)
+        out.writerow(["k", "v_m_per_s", "w_deg_per_s", "error_frame10_mm", "error_median_mm", "error_worst_mm",
+                      "error_last_mm", "rotation_median_deg", "path_length_m"])
+        print("   k |    v |  w | frame 10 | median | worst | last | rotation | path m")
+        for k in SWEEP_K:
+            for v, w in SWEEP_MOTION:
+                poses, _ = row_b_best_icp(clouds, median_depth, depth_noise, step_seconds, poses_c[0],
+                                          margin_k=k, max_speed=v, max_turn=np.radians(w))
+                e = [corner_landing_error(P, C, board) * 1000 for P, C in zip(poses, poses_c)]
+                rot = np.median([np.degrees(rotation_angle(np.linalg.inv(C) @ P)) for P, C in zip(poses, poses_c)])
+                row = [k, v, w, e[9], np.median(e), max(e), e[-1], rot, path_stats(poses)[0]]
+                out.writerow(np.round(row, 2))
+                print(f"{k:4} | {v:4} | {w:2} | {e[9]:8.1f} | {np.median(e):6.1f} | {max(e):5.0f} | {e[-1]:4.0f} | "
+                      f"{rot:8.1f} | {row[-1]:.2f}")
+
+
 # ── main ────────────────────────────────────────────────────────────────────
 
 def main():
@@ -264,6 +289,10 @@ def main():
     clouds = [make_cloud(depth_to_points(d, k, K)) for d, k in zip(depths, keeps)]
     median_depth = [np.median(d[k]) for d, k in zip(depths, keeps)]
     step_seconds = np.r_[0, np.diff(frames)] / c["fps"]
+
+    if "--sweep" in sys.argv:
+        sweep_row_b(clouds, median_depth, c["fit_rms"], step_seconds, poses_c, board, name)
+        return
 
     poses_a = row_a_old_icp(clouds, poses_c[0])
     poses_b, log_b = row_b_best_icp(clouds, median_depth, c["fit_rms"], step_seconds, poses_c[0])
