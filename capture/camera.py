@@ -35,7 +35,8 @@ def iphone_listed():
     # so waiting for the phone doesn't keep flicking the FaceTime camera's light on and off.
     devices = subprocess.run(["ffmpeg", "-hide_banner", "-f", "avfoundation", "-list_devices", "true", "-i", ""],
                              capture_output=True, text=True).stderr
-    return "iPhone Camera" in devices
+    # macOS may number the phone ("iPhone (2) Camera"), so match any iPhone camera except Desk View
+    return any("iPhone" in line and "Camera" in line and "Desk View" not in line for line in devices.splitlines())
 
 
 def open_iphone():

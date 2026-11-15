@@ -31,11 +31,13 @@ The first run downloads the MiDaS weights (~1.5 GB) into `~/.cache/torch/hub`.
 bash capture/camera.sh        # live iPhone view: SPACE = photo, R = start/stop recording, Q = quit
 ```
 
-Calibrate once per camera stream: show `capture/checkerboard.png` full-screen or print it, measure one
-square in mm, record ~30 s (R in the camera view) moving the phone around it, then:
+Calibrate once per camera stream: print `capture/checkerboard.png`, measure one square in mm, and
+tape it to something flat. Put the phone on a tripod in landscape and leave it still. Record ~60 s
+(R in the camera view) while you move and tilt the board in front of it, into every part of the frame.
+Set `CALIBRATION_VIDEO` and `SQUARE_SIZE_MM` at the top of `capture/calibrate.py`, then:
 
 ```bash
-Virtual_space_constructor/live3d_env/bin/python capture/calibrate.py captures/videos/<file>.mp4 iphone14_continuity_1080p <square_mm>
+Virtual_space_constructor/live3d_env/bin/python capture/calibrate.py
 ```
 
 This writes `capture/camera_calibration.json` (intrinsics K, distortion, board size), which the

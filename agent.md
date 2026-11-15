@@ -4,6 +4,8 @@ _Last updated 26 Oct 2026. Short on purpose. BAYMAX is a reference for how Marv 
 
 **For any AI assistant on this project:** read this first, every session. It's how Marv wants to work, not a rulebook.
 
+**Source of truth for code and build work:** this file (in the repo) and the Claude Code sessions that work on the repo. Other copies of agent.md (claude.ai project, other chats) are ignored for coding and build decisions (Marv, 29 Oct).
+
 ---
 
 ## What VSC is

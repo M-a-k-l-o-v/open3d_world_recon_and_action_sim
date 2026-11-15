@@ -28,6 +28,15 @@
 
 ![Top-down view and side-on slice](figures/2026-10-28_video-recon_midas_desk-video-1_thickness.png)
 
+## What we saw (Marv)
+- Looked bad overall: like several renders stacked in the same space.
+- The table looked best near the board, the centre of the video.
+- **Hypothesis:** the pipeline doesn't consider what's already partly reconstructed. It stacks a "tower of Babel" instead of completing a jigsaw.
+
+**Confirmed.** Each frame's points are simply added to the pile, then thinned to one per 2 mm voxel. No step checks for existing surfaces or merges several views of the same spot, so copies only merge if they land within the same 2 mm. MiDaS gives each frame a slightly different shape, so copies sit 6–38 mm apart and stay as layers. The table is best at the board because every frame's scale/shift is pinned there (the thickness table above).
+
+**But fusion alone wouldn't save MiDaS:** averaging inconsistent layers (e.g. TSDF fusion) gives a smooth surface in the wrong place. The jigsaw needs (1) depth that agrees across views (multi-view geometry, VGGT-class) and (2) fusion into one surface. Filling unseen parts is a third, separate problem (object completion).
+
 ## Learned
 - **Frames agree at the board and drift apart away from it.** Each frame's scale and shift are pinned on the board, but MiDaS's shape errors differ frame to frame, so the desk thickens from 6 mm to ~38 mm within 60 cm. This is the per-frame inconsistency that multi-view models (VGGT-class) are meant to remove.
 - **Far-away points dominate the cloud.** 58% are >1 m from the board, out to 10 m (floor, walls, extrapolated the most). They're also why 2 mm voxels barely shrank the cloud.

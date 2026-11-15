@@ -1,0 +1,80 @@
+// P1 experiment design: is per-frame depth + ICP stacking the wrong approach?
+// Render: dot -Tpng P1_experiment-design.dot -o P1_experiment-design.png
+digraph P1 {
+  graph [rankdir=TB, fontname="Helvetica", fontsize=12, nodesep=0.35, ranksep=0.45, newrank=true,
+         label="P1 experiment design — per-frame MiDaS depth + ICP stacking, at its fairest vs its ceiling\nblue = camera intrinsics · green = from the board · purple = MiDaS depth · orange = ICP · red dashed = grading only (never feeds ICP)",
+         labelloc=t, fontsize=14];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10.5, fillcolor="#f4f4f4", color="#888888"];
+  edge  [fontname="Helvetica", fontsize=9, color="#555555"];
+
+  // ── inputs ──────────────────────────────────────────────
+  subgraph cluster_inputs {
+    label="INPUTS (fixed for every row)"; style="rounded,dashed"; color="#999999"; fontsize=11;
+    video [label="Desk video 1\n19.8 s · 593 frames · every 10th → 56 frames\n(0.33 s apart)"];
+    calib [label="Camera intrinsics (calibration C, tripod, 0.44 px)\nK: fx, fy, cx, cy · lens distortion", fillcolor="#dbe8fb", color="#2a6fdb"];
+    board [label="Board truth\n9×6 inner corners · 15.5 mm squares · flat\n→ true 3D position of all 54 corners", fillcolor="#dcf2df", color="#2e9e44"];
+    split [label="Corner split\nFIT corners (every other row)\nHELD-OUT corners (the rest)", fillcolor="#dcf2df", color="#2e9e44"];
+    board -> split;
+  }
+
+  // ── cycle 1: per frame ──────────────────────────────────
+  subgraph cluster_frame {
+    label="CYCLE 1 — for each of the 56 frames (run once, results cached)"; style="rounded"; color="#444444"; fontsize=11;
+    undist [label="Undistort frame\n(remove lens distortion)", fillcolor="#dbe8fb", color="#2a6fdb"];
+    pnp    [label="Find board + PnP\n→ board pose in this frame\n(where the camera is, from the board)", fillcolor="#dcf2df", color="#2e9e44"];
+    midas  [label="MiDaS (BEiT-L-512)\n→ relative inverse depth per pixel\n(unknown scale and shift)", fillcolor="#ece1f7", color="#7a4fb0"];
+    fit    [label="Fit scale s, shift t on FIT corners only\n1/Z = s · prediction + t", fillcolor="#ece1f7", color="#7a4fb0"];
+    metric [label="Metric depth Z (metres) per pixel", fillcolor="#ece1f7", color="#7a4fb0"];
+    cloud  [label="Unproject with K → point cloud\n(camera's frame, 1 cm voxels, ≤ 1.5 m from board)", fillcolor="#ece1f7", color="#7a4fb0"];
+    stats  [label="Per-frame numbers\nZ_med = median depth\nσ_depth = depth error on FIT corners", fillcolor="#ece1f7", color="#7a4fb0"];
+    undist -> pnp; undist -> midas; midas -> fit; pnp -> fit [label="true corner depths\n(scale only)"]; fit -> metric -> cloud; metric -> stats; fit -> stats;
+  }
+  video -> undist; calib -> undist; calib -> pnp [label="K only (frame already undistorted\n→ zero distortion in solvePnP)"]; calib -> cloud [label="fx, fy, cx, cy"]; split -> fit [label="FIT corners"];
+
+  cache [label="CACHE\n56 clouds · Z_med · σ_depth · board poses\n(identical inputs for every row)", shape=cylinder, fillcolor="#fff7d6", color="#c9a400"];
+  cloud -> cache; stats -> cache;
+
+  // ── three pose sources ──────────────────────────────────
+  subgraph cluster_rows {
+    label="THREE POSE SOURCES over the same cached clouds"; style="rounded"; color="#444444"; fontsize=11;
+
+    old [label="Row A — OLD ICP (baseline as built)\nfixed 2 cm search · start from 'no movement'\npoint-to-point · 50 rounds", fillcolor="#fde3cf", color="#e67e22"];
+
+    subgraph cluster_best {
+      label="Row B — BEST-EFFORT ICP (no board information)\nCYCLE 2: for each step, frame i-1 → i"; style="rounded,filled"; fillcolor="#fff3e8"; color="#e67e22"; fontsize=10.5;
+      prior  [label="Motion guess = previous step's ICP movement\n(t_prev, θ_prev)  — first step: none", fillcolor="#fde3cf", color="#e67e22"];
+      d0     [label="Coarse search distance\nd₀ = k · (t_prev + Z_med · θ_prev)\nfirst step: d₀ = v·Δt + Z_med·ω·Δt\n(k, v, ω = Marv's design calls)", fillcolor="#fde3cf", color="#e67e22"];
+      dfine  [label="Fine search distance\nd_fine = max(voxel 1 cm, 3 · σ_depth)", fillcolor="#fde3cf", color="#e67e22"];
+      stage  [label="CYCLE 3 — coarse-to-fine\nrun point-to-plane ICP at distance d\nstart from the last stage's result", fillcolor="#fde3cf", color="#e67e22"];
+      halve  [label="d ← d / 2\nstop when d < d_fine", shape=diamond, fillcolor="#fde3cf", color="#e67e22"];
+      chain  [label="Chain: pose_i = pose_(i-1) × step", fillcolor="#fde3cf", color="#e67e22"];
+      prior -> d0 -> stage; dfine -> stage; stage -> halve; halve -> stage [label="next stage", style=bold];
+      halve -> chain [label="done"]; chain -> prior [label="next step", style=bold];
+    }
+
+    ref [label="Row C — CEILING (reference poses)\nboard pose in every frame\n= the best this approach can ever do", fillcolor="#dcf2df", color="#2e9e44"];
+  }
+  cache -> old; cache -> d0 [label="Z_med"]; cache -> dfine [label="σ_depth"]; cache -> ref; video -> s_noise [label="every frame", color="#c0392b", style=dashed, fontcolor="#c0392b"];
+
+  // ── scoring ─────────────────────────────────────────────
+  subgraph cluster_score {
+    label="SCORING (board = ground truth)"; style="rounded"; color="#444444"; fontsize=11;
+    stackA [label="Stack all 56 clouds with Row A poses", fillcolor="#fde3cf", color="#e67e22"];
+    stackB [label="Stack all 56 clouds with Row B poses", fillcolor="#fde3cf", color="#e67e22"];
+    stackC [label="Place all 56 clouds with Row C poses", fillcolor="#dcf2df", color="#2e9e44"];
+    s_pose [label="POSE DRIFT IN THE SCENE (rows A, B)\nboard corners' landing error vs true positions\nat frame 1 / 10 / 56 + worst\n(board depth is fitted → error here = pure pose drift)", fillcolor="#ffffff", color="#c0392b", penwidth=1.6];
+    s_depth [label="LAYERING (row C) — main score\nfor frame pairs i, j: move i's points into j's camera,\ncompare with j's own depth along the line of sight\ngrouped by distance from board: 0–10 / 10–30 / 30–60 / 60–80 cm\n(perfect poses → any gap = depth disagreement)", fillcolor="#ffffff", color="#c0392b", penwidth=1.6];
+    s_noise [label="PnP noise bound\njitter from all 593 frames\n→ false gap it could cause, per band", fillcolor="#ffffff", color="#c0392b"];
+    {rank=same; stackA; s_noise;}
+    s_sane [label="Sanity check (row C)\nHELD-OUT corners' depth error", fillcolor="#ffffff", color="#c0392b"];
+    s_sec  [label="Secondary\ncamera-path error (rows A, B vs C)\ndesk thickness (assumes a flat desk;\ndepends on viewing angle)", fillcolor="#ffffff", color="#c0392b"];
+    stackA -> s_pose; stackB -> s_pose; stackC -> s_depth; stackC -> s_sane; s_noise -> s_depth [label="reported beside", style=dotted]; stackA -> s_sec; stackB -> s_sec; stackC -> s_sec;
+  }
+  old -> stackA; chain -> stackB; ref -> stackC;
+  board -> s_pose  [label="true corner positions", color="#c0392b", style=dashed, fontcolor="#c0392b"];
+  split -> s_sane [label="HELD-OUT corners", color="#c0392b", style=dashed, fontcolor="#c0392b"];
+  ref -> s_sec     [label="reference path", color="#c0392b", style=dashed, fontcolor="#c0392b"];
+
+  verdict [label="VERDICT\nC gap grows with distance from board → stacking per-frame depth is the wrong approach\nB vs C → how much worse the realistic version is · A vs B → how much was just bad settings", shape=note, fillcolor="#fffbe6", color="#c9a400"];
+  s_pose -> verdict; s_depth -> verdict; s_sane -> verdict; s_sec -> verdict;
+}

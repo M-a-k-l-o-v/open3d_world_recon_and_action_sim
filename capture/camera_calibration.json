@@ -12,20 +12,20 @@
     "iphone14_continuity_1080p": {
       "width": 1920,
       "height": 1080,
-      "fx": 2011.6270567025979,
-      "fy": 1990.689519252436,
-      "cx": 968.2379003452471,
-      "cy": 543.9915058642027,
+      "fx": 2235.579344639355,
+      "fy": 2235.579344639355,
+      "cx": 970.9599473439492,
+      "cy": 553.7469662661229,
       "K": [
         [
-          2011.6270567025979,
+          2235.579344639355,
           0.0,
-          968.2379003452471
+          970.9599473439492
         ],
         [
           0.0,
-          1990.689519252436,
-          543.9915058642027
+          2235.579344639355,
+          553.7469662661229
         ],
         [
           0.0,
@@ -34,16 +34,16 @@
         ]
       ],
       "dist_coeffs": [
-        -0.046315082013303026,
-        0.28642655004882406,
-        -0.00178394464561182,
-        0.016312524396360124,
-        -0.7018781849448499
+        -0.015427363975676855,
+        -0.09606183494579641,
+        0.0,
+        0.0,
+        0.0
       ],
-      "rms_reprojection_error_px": 1.6572747066969584,
-      "frames_used": 25,
-      "source_video": "/Users/yin/Documents/projects/Programming/open3d_world_recon_and_action_sim/capture/../captures/videos/iphone 14 Calibration video.mp4",
-      "calibrated_on": "2026-10-28"
+      "rms_reprojection_error_px": 0.4358243553937233,
+      "frames_used": 429,
+      "source_video": "/Users/yin/Documents/projects/Programming/open3d_world_recon_and_action_sim/capture/../captures/videos/video_2026-11-15_135032_calibration-attempt-C_tripod.mp4",
+      "calibrated_on": "2026-11-15"
     }
   }
 }

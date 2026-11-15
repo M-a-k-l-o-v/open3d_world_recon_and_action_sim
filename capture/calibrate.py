@@ -26,9 +26,9 @@ import cv2
 import numpy as np
 
 INNER_CORNERS = (9, 6)       # matches capture/checkerboard.png (10x7 squares)
-MAX_FRAMES = 40              # calibrateCamera gets slow past this and gains little
+MAX_FRAME_ERROR_PX = 1.0     # frames the first fit misses by more than this (blur, mid-motion) are dropped
 CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), "camera_calibration.json")
-CALIBRATION_VIDEO = os.path.join(os.path.dirname(__file__), "..", "captures", "videos", "iphone 14 Calibration video.mp4")
+CALIBRATION_VIDEO = os.path.join(os.path.dirname(__file__), "..", "captures", "videos", "video_2026-11-15_135032_calibration-attempt-C_tripod.mp4")
 CAMERA_NAME = "iphone14_continuity_1080p"   # the entry this calibration is saved under
 SQUARE_SIZE_MM = 15.5    # side of one board square in mm — measure it with a ruler and put it here
 
@@ -89,12 +89,23 @@ def main():
     if len(corners) < 10:
         sys.exit("Need at least 10 frames with the whole board visible. Record again, slower.")
 
-    # Spread the chosen frames evenly over the video so all the poses you moved through count.
-    keep = np.linspace(0, len(corners) - 1, min(MAX_FRAMES, len(corners))).astype(int)
-    corners = [corners[i] for i in keep]
-    object_points = [board_points(square_size_m)] * len(corners)
+    # Use every frame (a few minutes): any 40-frame subset swung fx by ±10 px and RMS to ~0.87 px
+    # in attempt C, because a handful of bad frames dominate a small set.
+    # Simple lens model: square pixels (fx = fy), radial distortion k1, k2 only. The full model
+    # (+ tangential p1, p2 and k3) fits the middle slightly better but invents lopsided distortion
+    # (7 vs 25 px) in image corners the board never reached (attempt C, 15 Nov). np.eye(3) only sets fx/fy = 1.
+    simple_lens = cv2.CALIB_FIX_ASPECT_RATIO | cv2.CALIB_ZERO_TANGENT_DIST | cv2.CALIB_FIX_K3
+    points = board_points(square_size_m)
+    rms, K, dist, rvecs, tvecs = cv2.calibrateCamera([points] * len(corners), corners, image_size,
+                                                     np.eye(3), np.zeros(5), flags=simple_lens)
 
-    rms, K, dist, _, _ = cv2.calibrateCamera(object_points, corners, image_size, None, None)
+    # One clean-up pass: drop frames this fit misses badly, then fit again on the rest.
+    frame_errors = [np.sqrt(np.mean(np.sum((cv2.projectPoints(points, r, t, K, dist)[0] - c) ** 2, axis=-1)))
+                    for c, r, t in zip(corners, rvecs, tvecs)]
+    corners = [c for c, e in zip(corners, frame_errors) if e <= MAX_FRAME_ERROR_PX]
+    print(f"Dropped {len(frame_errors) - len(corners)} frames over {MAX_FRAME_ERROR_PX} px, refitting on {len(corners)}")
+    rms, K, dist, _, _ = cv2.calibrateCamera([points] * len(corners), corners, image_size,
+                                             np.eye(3), np.zeros(5), flags=simple_lens)
 
     # RMS reprojection error: how far (in pixels) the solved camera puts each corner
     # from where it was actually seen. Under ~0.5 px is good; over 1 px, recalibrate.
