@@ -2,7 +2,7 @@
 
 Turn video of a real space into something you can poke: a 3D reconstruction, then a physics
 simulation of it, then actors inside it. Checkpoints in order: **1 reconstruct → 2 simulate → 3 actors**.
-How the project is run: [agent.md](agent.md).
+How the project is run: [agent.md](agent.md). What each stage must do: [REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## Layout
 
