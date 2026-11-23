@@ -98,7 +98,7 @@ These notes are tidied from my Reconstructor sketch (26 Oct). I've kept only wha
 - Besl, P. J. and McKay, N. D. (1992). A Method for Registration of 3-D Shapes. *IEEE TPAMI* 14(2).
 - Birkl, R., Wofk, D. and Müller, M. (2023). MiDaS v3.1: A Model Zoo for Robust Monocular Relative Depth Estimation. arXiv:2307.14460.
 - Chen, Y. and Medioni, G. (1992). Object Modelling by Registration of Multiple Range Images. *Image and Vision Computing* 10(3).
-- MonoDiff9D: Monocular Category-Level 9D Object Pose Estimation via Diffusion Model (2025). *[check authors and venue]*
+- Liu, J., Sun, W., Yang, H., Zheng, J., Geng, Z., Rahmani, H. and Mian, A. (2025). MonoDiff9D: Monocular Category-Level 9D Object Pose Estimation via Diffusion Model. *ICRA*, pp. 8687–8694. arXiv:2504.10433.
 - Ranftl, R., Lasinger, K., Hafner, D., Schindler, K. and Koltun, V. (2022). Towards Robust Monocular Depth Estimation: Mixing Datasets for Zero-shot Cross-dataset Transfer. *IEEE TPAMI* 44(3).
 - Schönberger, J. L. and Frahm, J.-M. (2016). Structure-from-Motion Revisited. *CVPR*.
 - Wang, J., Chen, M., Karaev, N., Vedaldi, A., Rupprecht, C. and Novotny, D. (2025). VGGT: Visual Geometry Grounded Transformer. *CVPR*.
