@@ -51,14 +51,29 @@ PnP noise (upper bound, from 537 consecutive-frame triples): 0.083° rotation, 0
 
 Desk thickness (IQR, mm; assumes a flat desk; 0–10 / 10–30 / 30–60 / 60–80 cm): A 10.5 / 14.7 / 26.8 / 46.2 · B 7.5 / 12.1 / 25.2 / 51.4 · C 3.1 / 11.1 / 29.8 / 38.3.
 
+## Row B sweep (23 Nov 2026)
+`p1_baseline_experiment.py <video> --sweep`. Grid: k ∈ {1.5, 2, 2.5, 3, 4} × (v, ω) ∈ {(0.25 m/s, 15°/s), (0.5, 30), (1.0, 60)}. Data: `data/p1_baseline_video_2026-10-28_162722_rowB_sweep.csv`. Rerun on recovered video + rebuilt env; the k = 2.5 row reproduces the numbers above exactly.
+
+| k | frame 10 | median | worst | last | rotation (median) | path |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1.5 | 41.2 mm | 157.8 | 298 | 124 | 7.4° | 4.40 m |
+| 2 | 37.5 | 140.5 | 281 | 117 | 7.1° | 4.38 |
+| **2.5** | **15.4** | **135.9** | **270** | 112 | **6.5°** | 4.39 |
+| 3 | 32.7 | 149.3 | 289 | 116 | 7.0° | 4.41 |
+| 4 | 28.7 | 141.7 | 272 | 170 | 6.9° | 4.62 |
+
+- **v and ω change nothing**: identical rows for all three motion settings at every k. They only set step 1's coarse search (~19 / 38 / 77 cm); coarse-to-fine converges to the same step 1, and from step 2 on the search is k × previous motion.
+- **The default k = 2.5 is already the best** on every error measure. Picking it uses the board (hindsight a real system lacks), and it still loses the board by 27 cm. Worst error across the grid: 270–298 mm.
+- So the settings weren't the problem: confirms "mostly the approach".
+
 ## Learned
 - **The approach fails at its ceiling.** With perfect poses, frames agree at the board (2.4 mm) and disagree 12× more by 30–60 cm (30 mm). That's 10–20× the gap pose noise could explain. Stacking per-frame depth makes layers by construction.
 - **Bigger than the scale-error prediction.** Predicted ~2 → ~40 mm; measured 2 → 30 mm by 45 cm and far more beyond. MiDaS's shape errors add on top of the per-frame scale error: no per-frame fit fixes that.
 - **Frames far apart disagree more** (36 vs 12 mm at 30–60 cm). Neighbouring frames share errors, so stacking a short burst hides the problem.
 - **Better ICP settings help, but don't fix it.** B beats A early (15 vs 92 mm at frame 10) and on rotation (6.5° vs 23.7°), but ends up just as lost (worst 270 vs 257 mm). And B had help a real system wouldn't: correct metric scale and a 1.5 m crop around the board, both from the board.
-- So the old failure was **partly bad settings, mostly the approach**. Next: multi-view-consistent depth and pose (P2: VGGT vs COLMAP).
+- So the old failure was **partly bad settings, mostly the approach** (the row B sweep above confirms no setting fixes it). Next: multi-view-consistent depth and pose (P2: VGGT vs COLMAP).
 
 ## Caveats
-- One scene, one hand-held video. Row B's k, v, ω are design defaults, not tuned.
+- One scene, one hand-held video.
 - Row C's gaps are pairwise medians, so occluded points aren't removed. An occlusion test is the fix if the far bands matter.
 - The row A numbers differ from [the 15 Nov ICP probe](2026-11-15_video-recon_midas_icp-drift-vs-reference.md) (calibration B, camera-position error): different calibration and a different measure.

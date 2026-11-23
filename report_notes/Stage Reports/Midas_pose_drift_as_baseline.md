@@ -58,6 +58,7 @@ My old version started every step from "no movement" and searched only 2 cm. Bec
 - **Measured:**
   - With perfect poses, frames disagree by 2.4, 11.5 and 30.5 mm at 0–10, 10–30 and 30–60 cm from the board. Pose noise explains at most 1.6 mm of that.
   - Old ICP measured 2.4 cm per step against a real 5.7 cm, and 47 of 55 steps were over its 2 cm search.
+  - Across 15 row B settings, the worst board error stays between 270 and 298 mm. Tuning doesn't stop the drift.
 - **Claimed (from papers):** MiDaS is trained to ignore scale and shift, so its output is only relative inverse depth (Ranftl et al., 2022).
 - **Inferred:**
   - Part of the gap comes from MiDaS getting the shape wrong, not just the scale, because the gap is larger than my scale-only prediction.
@@ -66,7 +67,7 @@ My old version started every step from "no movement" and searched only 2 cm. Bec
 
 ## 6. Limitations
 - One scene and one hand-held video, about 1.2 m from the desk.
-- Row B's search settings are sensible defaults, not tuned: a 2.5× margin, 0.5 m/s and 30°/s. Row B also got two kinds of help from the board that a real system wouldn't have: correct metric scale, and a 1.5 m crop around the board.
+- Row B's search settings were swept afterwards (margin 1.5–4×; 0.25–1 m/s with 15–60°/s). My defaults (2.5×, 0.5 m/s, 30°/s) were already the best, and picking that best setting needs the board, which a real system wouldn't have. Even so, every setting loses the board by 27–30 cm. Speed and turn only set the first step's search, and changing them had no effect on this video. Row B also got two kinds of help from the board that a real system wouldn't have: correct metric scale, and a 1.5 m crop around the board.
 - Past 60 cm, occlusion and the floor inflate row C's gap, so I only rely on 0–60 cm.
 - My first calibration had a focal length 11% short; the per-step ICP numbers in §4 used it. This experiment uses a better tripod calibration (0.44 px error).
 
