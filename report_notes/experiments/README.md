@@ -4,7 +4,7 @@ One note per experiment: goal → setup → numbers → what we learned. Newest 
 
 **File names:** `<date>_<kind>_<method>_<topic>.md`, where *kind* is one of:
 `synthetic` (made-up data with a known answer) · `capture` (phone / recording) · `calibration` ·
-`image-recon` (Main.py, single frames) · `video-recon` (video_reconstruction.py, many frames).
+`image-recon` (Main.py, single frames) · `video-recon` (many frames from a video).
 Data files in `captures/` follow the same idea (convention in `capture/camera.py`).
 
 | Date | Note | Headline |
@@ -19,6 +19,7 @@ Data files in `captures/` follow the same idea (convention in `capture/camera.py
 | 15 Nov | [video-recon: chained ICP vs reference poses](2026-11-15_video-recon_midas_icp-drift-vs-reference.md) | ICP drifts 11 cm in 3 s, up to 90 cm / 64°; with perfect poses the desk still stacks 3 → 46 mm. Both failures real |
 | 15 Nov | [calibration: attempt C, tripod](2026-11-15_calibration_continuity_iphone14-attempt-C-tripod.md) | **0.436 px**, fx = fy = 2235.6 (B: 1.66 px, fx 2011.6) — simple lens model, all frames |
 | 15 Nov | [video-recon: P1 baseline, three pose sources](2026-11-15_video-recon_midas_p1-baseline-three-rows.md) | Perfect poses: frames agree 2.4 mm at the board, 30 mm at 30–60 cm (pose noise ≤ 1.6). Best-effort ICP: 15 vs 92 mm at frame 10, still lost by 27 cm |
+| 23 Nov | [video-recon: P2 two-view SfM from scratch](2026-11-23_video-recon_sfm_p2-two-view-from-scratch.md) | Hand-built 8-point + polish matches OpenCV at 10–30 cm moves (0.3–1.1°, 2–4°); fails past ~40° turn: one pair can't cover the walk |
 
 ## Why the old prototype failed (MiDaS round, closed 29 Oct)
 1. **MiDaS output used as depth.** It's inverse depth with unknown scale and shift, so near and far were swapped (synthetic: board 618 vs wall 121 "units").
