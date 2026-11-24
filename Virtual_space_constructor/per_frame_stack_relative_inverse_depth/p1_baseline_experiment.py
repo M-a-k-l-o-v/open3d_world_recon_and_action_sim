@@ -12,7 +12,7 @@
 #              PnP pose noise (from every video frame) is reported next to it, since pose noise can fake a gap.
 #   Sanity     held-out corners (not used in the depth fit). Secondary: camera path, desk thickness.
 #
-# Run from this folder:   live3d_env/bin/python p1_baseline_experiment.py ../captures/videos/<video>.mp4
+# Run from this folder:   ../live3d_env/bin/python p1_baseline_experiment.py ../../captures/videos/<video>.mp4
 # Add --sweep to rerun row B over a grid of its design calls (k, v, w) instead.
 # Step 1 (MiDaS, slow) is cached in captures/cache/; later runs skip it.
 
@@ -25,7 +25,7 @@ import numpy as np
 import open3d as o3d
 from scipy.spatial.transform import Rotation
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "capture"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "capture"))
 from camera import PROJECT
 
 FRAME_STEP = 10              # every 10th frame (0.33 s apart), as in video_reconstruction.py

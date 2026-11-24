@@ -10,7 +10,7 @@ How the project is run: [agent.md](agent.md). What each stage must do: [REQUIREM
 | --- | --- |
 | `capture/` | iPhone capture scripts (Continuity Camera + ffmpeg), checkerboard, camera calibration |
 | `captures/` | Photos and videos the scripts save (not committed) |
-| `Virtual_space_constructor/` | The old MiDaS + Open3D prototype |
+| `Virtual_space_constructor/` | Code, one folder per approach: `per_frame_stack_relative_inverse_depth/` (the old MiDaS + ICP prototype, P1) and `multi_view_geometry/` (P2: two-view SfM, VGGT). Shared env `live3d_env/` |
 | `Artifacts/` | Sketch board and past results (large files via Git LFS) |
 | `report_notes/` | Method notes for a possible write-up |
 
@@ -46,7 +46,7 @@ prototype reads.
 ## Prototype
 
 ```bash
-cd Virtual_space_constructor && live3d_env/bin/python Main.py
+cd Virtual_space_constructor/per_frame_stack_relative_inverse_depth && ../live3d_env/bin/python Main.py
 ```
 
 Keep the checkerboard in view; SPACE captures (each raw frame is saved to `captures/photos/`), ESC saves the point cloud to `captures/ply/`.

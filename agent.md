@@ -77,7 +77,7 @@ Probe list right now: pose drift · VGGT frame limit on the 4080 · where to sta
 
 ## Where things live
 
-- **This folder** — the project: `Artifacts/` (the sketch board — re-read it, it's often ahead of the docs), `Virtual_space_constructor/` (the old prototype), `capture/` (`camera.sh`: live iPhone view, SPACE = photo, R = record — output goes to `captures/`; `calibrate.py` + checkerboard write the camera intrinsics to `capture/camera_calibration.json`), and code as it gets built.
+- **This folder** — the project: `Artifacts/` (the sketch board — re-read it, it's often ahead of the docs), `Virtual_space_constructor/` (code, one folder per approach: `per_frame_stack_relative_inverse_depth/` = the old MiDaS prototype, `multi_view_geometry/` = P2 onwards), `capture/` (`camera.sh`: live iPhone view, SPACE = photo, R = record — output goes to `captures/`; `calibrate.py` + checkerboard write the camera intrinsics to `capture/camera_calibration.json`), and code as it gets built.
 - **Project docs (Cowork/claude.ai):** `CHECKPOINT_TRACK.md` (decided / open / probes), `TRAINED_ARTIFACTS.md` (what VSC trains), `HANDOVER.md` (history and the prototype audit), the ML foundations reminder.
 - **Notion:** the *Research reading list* (what's read) and the Tasklist decision log.
 - **Calendar:** the morning reading block, "Deep work — reconstructor model", Thursday VSC build sessions.

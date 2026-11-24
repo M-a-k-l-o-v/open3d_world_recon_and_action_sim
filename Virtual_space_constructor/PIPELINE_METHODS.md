@@ -1,6 +1,6 @@
 # Virtual Space Constructor — Media Pipeline Methods Summary
 
-**Project**: this repo (`open3d_world_recon_and_action_sim`), folders `capture/` and `Virtual_space_constructor/`.
+**Project**: this repo (`open3d_world_recon_and_action_sim`), folders `capture/` and `Virtual_space_constructor/` (one subfolder per approach: `per_frame_stack_relative_inverse_depth/`, `multi_view_geometry/`).
 **Status**: active. Checkpoint 1 (Renderer). P1 (MiDaS pose drift) finished 23 Nov 2026; P2 (multi-view geometry: VGGT vs COLMAP) under way.
 **Purpose of this file**: reference summary of the capture, encoding, compression, format-conversion, geometry and playback methods in the pipeline: for portfolio / interview review, and as a map of what each script does.
 
@@ -65,11 +65,12 @@ Two experiment scripts sit beside this pipeline (sections 8–9): `p1_baseline_e
 | --- | --- |
 | `capture/camera.sh` → `camera.py` | Live iPhone view; SPACE = photo, R = record; waits for and reconnects to the phone |
 | `capture/calibrate.py` | Camera matrix K and lens distortion from a checkerboard video |
-| `Main.py` → `image_reconstructor.py` | Live capture-by-capture point cloud (SPACE per capture) |
-| `video_reconstruction.py` | One point cloud from a whole video, board poses only |
-| `icp_drift_probe.py` | Chained ICP (old settings) vs board poses |
-| `p1_baseline_experiment.py` | P1: three pose sources (old ICP, best-effort ICP, board) + layering test; `--sweep` for row B settings |
-| `p2_two_view_sfm.py` | P2 warm-up: two-view structure-from-motion from scratch, checked against the board and OpenCV |
+| `per_frame_stack_relative_inverse_depth/Main.py` → `image_reconstructor.py` | Live capture-by-capture point cloud (SPACE per capture) |
+| `per_frame_stack_relative_inverse_depth/video_reconstruction.py` | One point cloud from a whole video, board poses only |
+| `per_frame_stack_relative_inverse_depth/icp_drift_probe.py` | Chained ICP (old settings) vs board poses |
+| `per_frame_stack_relative_inverse_depth/p1_baseline_experiment.py` | P1: three pose sources (old ICP, best-effort ICP, board) + layering test; `--sweep` for row B settings |
+| `multi_view_geometry/p2_two_view_sfm.py` | P2 warm-up: two-view structure-from-motion from scratch, checked against the board and OpenCV |
+| `multi_view_geometry/vggt_mac_check.py` | VGGT on this Mac: time, memory and pose accuracy vs frame count (NFR1.4) |
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Goal (P1's question):** the old prototype aligned frames with ICP. Was pose drift the real problem, or the depth?
 **Data:** desk video 1 (`video_2026-10-28_162722.mp4`, 19.8 s), every 10th frame → **56 frames** with the whole board, one every 0.33 s.
-**Code:** `Virtual_space_constructor/icp_drift_probe.py`. Calibration: attempt B (same as desk video 1). 1 cm points, within 1.5 m of the board.
+**Code:** `Virtual_space_constructor/per_frame_stack_relative_inverse_depth/icp_drift_probe.py`. Calibration: attempt B (same as desk video 1). 1 cm points, within 1.5 m of the board.
 **Reference pose:** the checkerboard's pose in each frame (solvePnP). **ICP:** frame-to-frame, chained, with the old prototype's settings (point-to-point, 2 cm, starting from "no motion"), anchored to the reference at frame 1.
 **Data file:** `report_notes/experiments/data/p1_icp-drift_video_2026-10-28_162722_poses.csv`
 

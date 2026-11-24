@@ -18,11 +18,11 @@ import open3d as o3d
 import collections
 
 # iPhone connection and preview window are shared with the capture scripts (capture/camera.py)
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "capture"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "capture"))
 from camera import iphone_listed, open_iphone, show, save_photo, capture_path, timestamp, PROJECT
 
 # camera intrinsics and checkerboard size, made by capture/calibrate.py
-CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), "..", "capture", "camera_calibration.json")
+CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "capture", "camera_calibration.json")
 CAMERA_NAME = "iphone14_continuity_1080p"
 
 with open(CALIBRATION_FILE) as f:

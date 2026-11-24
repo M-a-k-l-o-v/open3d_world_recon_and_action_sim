@@ -6,7 +6,7 @@
 # up, so any doubling/thickness you see is MiDaS's depth disagreeing between frames.
 #
 # Uses the newest video in captures/videos/ (record one with: bash capture/camera.sh, then R).
-# Run from this folder:   live3d_env/bin/python video_reconstruction.py
+# Run from this folder:   ../live3d_env/bin/python video_reconstruction.py
 
 import glob
 import os

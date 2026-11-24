@@ -8,7 +8,7 @@
 # poses — and the desk's thickness is measured in each. Reference poses isolate the depth error;
 # ICP poses add pose drift on top.
 #
-# Run from this folder:   live3d_env/bin/python icp_drift_probe.py captures/videos/<video>.mp4
+# Run from this folder:   ../live3d_env/bin/python icp_drift_probe.py ../../captures/videos/<video>.mp4
 
 import csv
 import os

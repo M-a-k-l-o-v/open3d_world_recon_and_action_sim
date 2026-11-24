@@ -20,6 +20,7 @@ Data files in `captures/` follow the same idea (convention in `capture/camera.py
 | 15 Nov | [calibration: attempt C, tripod](2026-11-15_calibration_continuity_iphone14-attempt-C-tripod.md) | **0.436 px**, fx = fy = 2235.6 (B: 1.66 px, fx 2011.6) — simple lens model, all frames |
 | 15 Nov | [video-recon: P1 baseline, three pose sources](2026-11-15_video-recon_midas_p1-baseline-three-rows.md) | Perfect poses: frames agree 2.4 mm at the board, 30 mm at 30–60 cm (pose noise ≤ 1.6). Best-effort ICP: 15 vs 92 mm at frame 10, still lost by 27 cm |
 | 23 Nov | [video-recon: P2 two-view SfM from scratch](2026-11-23_video-recon_sfm_p2-two-view-from-scratch.md) | Hand-built 8-point + polish matches OpenCV at 10–30 cm moves (0.3–1.1°, 2–4°); fails past ~40° turn: one pair can't cover the walk |
+| 23 Nov | [video-recon: VGGT on the M1 Mac](2026-11-23_video-recon_vggt_mac-check-m1-16gb.md) | Runs; **max 32 frames per pass** (~3–4 min, 13.2 GB) after chunked attention + float16; poses ~0.6° rotation error vs board |
 
 ## Why the old prototype failed (MiDaS round, closed 29 Oct)
 1. **MiDaS output used as depth.** It's inverse depth with unknown scale and shift, so near and far were swapped (synthetic: board 618 vs wall 121 "units").

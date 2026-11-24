@@ -14,7 +14,7 @@
 #   5 grade against the board (used only here): R and t vs the board's poses, and the triangulated board corners
 #     vs the real board once the size is fixed. OpenCV's findEssentialMat + recoverPose runs alongside as a check.
 #
-# Run from this folder:   live3d_env/bin/python p2_two_view_sfm.py ../captures/videos/<video>.mp4 [frame_a frame_b]
+# Run from this folder:   ../live3d_env/bin/python p2_two_view_sfm.py ../../captures/videos/<video>.mp4 [frame_a frame_b]
 
 import json
 import os
@@ -25,7 +25,7 @@ import numpy as np
 from scipy.optimize import least_squares
 from scipy.spatial.transform import Rotation
 
-CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), "..", "capture", "camera_calibration.json")
+CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "capture", "camera_calibration.json")
 CAMERA_NAME = "iphone14_continuity_1080p"
 FRAME_A, FRAME_B = 0, 80          # video frames; 0 -> 80 is ~24 cm of camera movement in the 28 Oct desk video
 RATIO = 0.75                      # Lowe's ratio test: keep a match only if it's clearly better than the runner-up

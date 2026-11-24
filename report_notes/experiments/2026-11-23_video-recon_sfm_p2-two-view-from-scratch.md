@@ -2,7 +2,7 @@
 
 **Goal (P2 warm-up):** before running COLMAP, build its core by hand: from two photos alone, recover how the camera turned, which way it moved, and the 3D points. Check it against the board and against OpenCV.
 **Data:** desk video 1 (`video_2026-10-28_162722.mp4`), undistorted with calibration C (fx = 2235.6 px).
-**Code:** `Virtual_space_constructor/p2_two_view_sfm.py <video> [frame_a frame_b]`. SIFT matches (OpenCV); essential matrix by 8-point + RANSAC, split into R and t, polish, triangulation (NumPy + scipy). OpenCV's `findEssentialMat` (5-point) + `recoverPose` alongside. The board is used only for grading.
+**Code:** `Virtual_space_constructor/multi_view_geometry/p2_two_view_sfm.py <video> [frame_a frame_b]`. SIFT matches (OpenCV); essential matrix by 8-point + RANSAC, split into R and t, polish, triangulation (NumPy + scipy). OpenCV's `findEssentialMat` (5-point) + `recoverPose` alongside. The board is used only for grading.
 **Grades:** rotation error and travel-direction error vs the board's poses; board corners triangulated, sized by the real 15.5 mm squares, compared with the real corners (mean, mm).
 
 ## Results

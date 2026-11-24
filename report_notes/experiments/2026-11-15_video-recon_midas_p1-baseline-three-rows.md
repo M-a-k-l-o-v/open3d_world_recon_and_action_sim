@@ -2,7 +2,7 @@
 
 **Aim:** is per-frame depth + ICP stacking the wrong approach, even at its fairest?
 **Data:** desk video 1 (`video_2026-10-28_162722.mp4`), every 10th frame → **56 frames**, 0.33 s apart. Median depth 1.2 m.
-**Code:** `Virtual_space_constructor/p1_baseline_experiment.py`. Calibration **C** (tripod, 0.44 px). Design: [flowchart](../Stage%20Reports/figures/P1_experiment-design.png).
+**Code:** `Virtual_space_constructor/per_frame_stack_relative_inverse_depth/p1_baseline_experiment.py`. Calibration **C** (tripod, 0.44 px). Design: [flowchart](../Stage%20Reports/figures/P1_experiment-design.png).
 **Data files:** `data/p1_baseline_video_2026-10-28_162722_poses.csv`, `data/p1_baseline_video_2026-10-28_162722_rowC_gap.csv`
 
 | Row | Poses from | Settings |

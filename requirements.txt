@@ -7,3 +7,7 @@ opencv-python==4.12.0.88
 open3d==0.19.0
 torch==2.9.0
 timm==0.6.13  # MiDaS' BEiT model breaks on timm 0.9+; 0.6.12 doesn't import on Python 3.11
+einops==0.8.2
+safetensors==0.8.0
+# VGGT pins numpy<2 and torch 2.3, which would break the packages above; it works without them. Install it with:
+#   Virtual_space_constructor/live3d_env/bin/pip install --no-deps "vggt @ git+https://github.com/facebookresearch/vggt.git@a288dd0"

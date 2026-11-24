@@ -58,6 +58,7 @@ def open_iphone():
 #   video_2026-10-28_160701.mp4                     camera.sh video
 #   image-recon_midas_2026-10-28_160701.ply         Main.py point cloud (frames: ..._capture01.jpg)
 #   video-recon_midas_2026-10-28_160701_from-<video>.ply   video_reconstruction.py point cloud
+#   video-recon_vggt_2026-11-23_160701_from-<video>_32-frames.ply   vggt_mac_check.py point cloud
 def timestamp():
     return datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
